@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, when, isnan, round
+from pyspark.sql.functions import col, when, isnan, sqrt, round
 from pyspark.sql.types import DoubleType
 
 # Initialize a Spark session
@@ -45,6 +45,13 @@ df_clean = df_clean.filter((col("velocity.vx").between(-velocity_threshold, velo
                            (col("velocity.vy").between(-velocity_threshold, velocity_threshold)) &
                            (col("velocity.vz").between(-velocity_threshold, velocity_threshold)))
 
+# Calculer la distance par rapport à la Terre (point de référence)
+df_clean = df_clean.withColumn("distance_to_earth", sqrt(col("position.x")**2 + col("position.y")**2 + col("position.z")**2))
+
+# Définir une variable cible : collision si distance < seuil
+collision_threshold = 1e6  # Exemple de seuil pour définir une collision
+df_clean = df_clean.withColumn("collision", (col("distance_to_earth") < collision_threshold).cast("int"))
+
 # Handling outliers: applying statistical methods (optional)
 # Example: capping outliers using quantile-based flooring and capping
 quantiles = df_clean.approxQuantile(["mass", "size"], [0.01, 0.99], 0.05)
@@ -54,7 +61,7 @@ df_clean = df_clean.withColumn("mass", when(col("mass") > quantiles[0][1], quant
 df_clean = df_clean.withColumn("size", when(col("size") < quantiles[1][0], quantiles[1][0]).otherwise(col("size")))
 df_clean = df_clean.withColumn("size", when(col("size") > quantiles[1][1], quantiles[1][1]).otherwise(col("size")))
 
-# Rounding off numerical columns for consistency
+# Arrondir les colonnes numériques pour la cohérence
 df_final = df_clean.withColumn("mass", round(col("mass"), 2)) \
                    .withColumn("size", round(col("size"), 2)) \
                    .withColumn("position.x", round(col("position.x"), 2)) \
@@ -62,16 +69,17 @@ df_final = df_clean.withColumn("mass", round(col("mass"), 2)) \
                    .withColumn("position.z", round(col("position.z"), 2)) \
                    .withColumn("velocity.vx", round(col("velocity.vx"), 2)) \
                    .withColumn("velocity.vy", round(col("velocity.vy"), 2)) \
-                   .withColumn("velocity.vz", round(col("velocity.vz"), 2))
+                   .withColumn("velocity.vz", round(col("velocity.vz"), 2)) \
+                   .withColumn("distance_to_earth", round(col("distance_to_earth"), 2))
 
-# Selecting necessary columns
-df_final = df_final.select("id", "position", "velocity", "size", "mass")
+# Sélectionner les colonnes nécessaires
+df_final = df_final.select("id", "position", "velocity", "size", "mass", "distance_to_earth", "collision")
 
 # Show the result after cleaning
 df_final.show()
 
 # Save the cleaned data back to HDFS
-df_final.write.mode("overwrite").json("hdfs://namenode:9000/data/cleaned_data.json")
+df_final.write.mode("overwrite").json("hdfs://namenode:9000/data/cleaned_prepared_data")
 
 # Stop the Spark session
 spark.stop()
