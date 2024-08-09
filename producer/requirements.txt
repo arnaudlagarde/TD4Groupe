@@ -1,0 +1,6 @@
+pandas
+flask==3.0.2
+Werkzeug==3.0.2
+hdfs==2.6.0
+kafka-python==2.0.2
+marshmallow==3.14.1
