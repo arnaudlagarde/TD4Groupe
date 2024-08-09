@@ -47,7 +47,28 @@ def generate_random_asteroids(num_asteroids):
 num_asteroids = 5000
 asteroids = generate_random_asteroids(num_asteroids)
 
-with open('asteroids.json', 'w') as file:
-    json.dump(asteroids, file, indent=4)
+# Liste des noms des planètes pour les associer aux astéroïdes
+planet_names = list(planets.keys())
 
-print(f"{num_asteroids} astéroïdes générés et sauvegardés dans 'asteroids.json'.")
+# Créer une liste pour stocker les couples planète-astéroïde
+combined_objects = []
+
+# Associer chaque astéroïde à une planète
+for i in range(num_asteroids):
+    planet_name = planet_names[i % len(planet_names)]  # Sélectionne la planète de manière cyclique
+    planet_position = planets[planet_name]
+    
+    combined_object = {
+        "asteroid": asteroids[i],
+        "planet": {
+            "name": planet_name,
+            "position": planet_position
+        }
+    }
+    combined_objects.append(combined_object)
+
+# Sauvegarder la liste combinée dans un fichier JSON
+with open('combined_asteroids_planets.json', 'w') as file:
+    json.dump(combined_objects, file, indent=4)
+
+print(f"{num_asteroids} couples astéroïde-planète générés et sauvegardés dans 'combined_asteroids_planets.json'.")
