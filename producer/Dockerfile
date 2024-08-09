@@ -14,5 +14,4 @@ COPY producer.py /producer/producer.py
 COPY generate_data.py /producer/generate_data.py
 
 # Définir la commande par défaut pour exécuter le producteur Kafka
-# CMD ["python", "/producer/producer.py"]
-CMD ["/bin/bash"]
+CMD ["python", "/producer/producer.py"]

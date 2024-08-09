@@ -105,14 +105,24 @@ services:
     ports:
       - "2181:2181"
 
+  producer:
+    build: ./producer
+    container_name: kafka-producer
+    restart: always
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_BROKER: kafka:9092
+    volumes:
+      - ./producer:/producer
+
   kafka-consumer:
     build: ./consumer 
     container_name: kafka-consumer
     depends_on:
       - kafka
+      - zookeeper
       - namenode
-    volumes:
-      - ./consumer:/app
 
 volumes:
   hadoop_namenode:
