@@ -38,7 +38,7 @@ def generate_random_asteroids(num_asteroids):
     return asteroids
 
 # Generate asteroids
-num_asteroids = 5000
+num_asteroids = 100000
 asteroids = generate_random_asteroids(num_asteroids)
 
 # Create a combined list for planets and asteroids
