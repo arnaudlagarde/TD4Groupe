@@ -1,8 +1,10 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, sqrt, pow
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 # Initialize Spark Session
-spark = SparkSession.builder.appName("Asteroid Collision Detection").getOrCreate()
+spark = SparkSession.builder.appName("Asteroid Collision Visualization").getOrCreate()
 
 # Load your dataset into a DataFrame
 asteroids_df = spark.read.json("hdfs://namenode:9000/data/combined_objects.ndjson")
@@ -30,14 +32,8 @@ filtered_df = asteroids_df.filter(col("velocity.vx").isNotNull() &
                                   col("velocity.vy").isNotNull() &
                                   col("velocity.vz").isNotNull())
 
-print("Filtered Data with Non-null Velocities:")
-filtered_df.show(5)
-
 # Simulate asteroid positions
 simulated_df = simulate_trajectories(filtered_df, total_days)
-
-print(f"Simulated Data after {total_days} days:")
-simulated_df.select("id", "position", "velocity").show(5)
 
 # Calculate distance to Earth
 simulated_df = simulated_df.withColumn("distance_to_earth",
@@ -45,28 +41,51 @@ simulated_df = simulated_df.withColumn("distance_to_earth",
                                             pow(col("position.y"), 2) +
                                             pow(col("position.z"), 2)))
 
-print("Data with Calculated Distance to Earth:")
-simulated_df.select("id", "distance_to_earth").show(5)
-
 # Determine collision risk
 collision_risk_df = simulated_df.withColumn("collision_risk",
                                             col("distance_to_earth") < collision_threshold_km)
 
-print(f"Asteroids with Distance < {collision_threshold_km} km:")
-collision_risk_df.filter(col("collision_risk") == True).select("id", "distance_to_earth").show(10)
+# Collect data for visualization
+positions = collision_risk_df.select("id", "position.x", "position.y", "position.z", "collision_risk").collect()
 
-# Select and display potential collisions
-potential_collisions_df = collision_risk_df.select(
-    col("id"),
-    col("mass").alias("mass (kg)"),
-    col("size").alias("size (m)"),
-    col("distance_to_earth").alias("Distance to Earth (km)"),
-    col("collision_risk")
-).filter(col("collision_risk") == True)
+# Prepare data for plotting
+ids = [row['id'] for row in positions]
+x_positions = [row['x'] for row in positions]
+y_positions = [row['y'] for row in positions]
+z_positions = [row['z'] for row in positions]
+collision_risks = [row['collision_risk'] for row in positions]
 
-# Show asteroids with potential collision risk
-print("Asteroids with Potential Collision Risk:")
-potential_collisions_df.show(10)
+# Plotting
+fig = plt.figure(figsize=(12, 8))
+ax = fig.add_subplot(111, projection='3d')
+
+# Plot all asteroids
+ax.scatter(x_positions, y_positions, z_positions, c='blue', label='Asteroids')
+
+# Highlight potential collisions
+collision_indices = [i for i, risk in enumerate(collision_risks) if risk]
+ax.scatter([x_positions[i] for i in collision_indices],
+           [y_positions[i] for i in collision_indices],
+           [z_positions[i] for i in collision_indices], 
+           c='red', label='Potential Collision')
+
+# Label the plot
+ax.set_title('Asteroid Trajectories and Collision Predictions')
+ax.set_xlabel('X Position (km)')
+ax.set_ylabel('Y Position (km)')
+ax.set_zlabel('Z Position (km)')
+ax.legend()
+
+# Show plot
+plt.show()
+
+# Generate a simple report
+total_asteroids = len(positions)
+potential_collisions = len(collision_indices)
+
+print(f"Total Asteroids Analyzed: {total_asteroids}")
+print(f"Potential Collisions: {potential_collisions}")
+print(f"Details of Potential Collisions: {[ids[i] for i in collision_indices]}")
 
 # Stop the Spark session
 spark.stop()
