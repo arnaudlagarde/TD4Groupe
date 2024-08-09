@@ -1,17 +1,17 @@
-# Utilisation d'une image de base Python
-FROM python:3.9-slim
+# Utiliser une image Python de base
+FROM python:3.8-slim
 
-# Définir le répertoire de travail
+# Installer les dépendances nécessaires
+RUN pip install kafka-python
+
+# Créer un répertoire pour le code
 WORKDIR /producer
 
-# Copier les fichiers de configuration
-COPY requirements.txt requirements.txt
+# Copier le script du producteur dans le conteneur
+COPY producer.py /producer/producer.py
 
-# Installer les dépendances
-RUN pip install -r requirements.txt
+# Copier le script generate_data.py depuis l'extérieur du répertoire producer
+COPY generate_data.py /producer/generate_data.py
 
-# Copier tout le contenu du répertoire courant dans le conteneur
-COPY . .
-
-# Définir la commande par défaut pour exécuter le script du producteur Kafka
-CMD ["python", "kafka_producer_multiple_csv.py"]
+# Définir la commande par défaut pour exécuter le producteur Kafka
+CMD ["python", "/producer/producer.py"]
