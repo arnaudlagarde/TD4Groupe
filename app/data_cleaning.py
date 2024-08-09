@@ -10,7 +10,8 @@ spark = SparkSession.builder \
     .getOrCreate()
 
 # Load data from HDFS
-df = spark.read.json("hdfs://namenode:9000/data/combined_objects.ndjson")
+# df = spark.read.json("hdfs://namenode:9000/data/combined_objects.ndjson")
+df = spark.read.json("hdfs://namenode:9000/data/asteroids/*.json")
 
 # Display the initial DataFrame structure
 df.printSchema()
@@ -70,7 +71,7 @@ df_final = df_final.select("id", "position", "velocity", "size", "mass")
 df_final.show()
 
 # Save the cleaned data back to HDFS
-df_final.write.mode("overwrite").json("hdfs://namenode:9000/data/cleaned_combined_objects.ndjson")
+df_final.write.mode("overwrite").json("hdfs://namenode:9000/data/cleaned_data.json")
 
 # Stop the Spark session
 spark.stop()
