@@ -2,7 +2,7 @@ import json
 import random
 import uuid
 
-# Définir le dictionnaire des planètes
+# Dictionnaire des planètes réalistes (en millions de km)
 planets = {
     "Mercure": {"x": 57900000.0, "y": 0.0, "z": 0.0},
     "Venus": {"x": 108200000.0, "y": 0.0, "z": 0.0},
@@ -43,7 +43,7 @@ def generate_random_asteroids(num_asteroids):
         asteroids.append(asteroid)
     return asteroids
 
-# Générer 5000 astéroïdes et les sauvegarder dans un fichier JSON
+# Générer 5000 astéroïdes
 num_asteroids = 5000
 asteroids = generate_random_asteroids(num_asteroids)
 
