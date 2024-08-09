@@ -1,51 +1,76 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, avg, stddev
+from pyspark.sql.functions import col, when, isnan, round
 from pyspark.sql.types import DoubleType
 
-# Initialize Spark session
+# Initialize a Spark session
 spark = SparkSession.builder \
-    .appName("SeismicDataCleaning") \
+    .appName("Asteroid Data Cleaning") \
+    .master("local[*]") \
+    .config("spark.hadoop.fs.defaultFS", "hdfs://namenode:9000") \
     .getOrCreate()
 
-# Read seismic data from HDFS (Parquet format)
-df_seismic = spark.read.parquet("hdfs://namenode:9000/data/seismic")
-df_cities = spark.read.parquet("hdfs://namenode:9000/data/cities")
+# Load data from HDFS
+df = spark.read.json("hdfs://namenode:9000/data/combined_objects.ndjson")
 
-# Drop duplicates
-df_seismic = df_seismic.dropDuplicates()
-df_cities = df_cities.dropDuplicates()
+# Display the initial DataFrame structure
+df.printSchema()
 
-# Clean seismic data: Drop rows with null or NaN values in critical columns
-df_seismic_cleaned = df_seismic.na.drop(subset=["magnitude", "tension entre plaque"])
-df_cities_cleaned = df_cities.na.drop(subset=["magnitude", "tension entre plaque"])
+# Initial data inspection
+df.show(5, truncate=False)
+df.describe().show()
 
-# Convert columns to correct data types if necessary
-df_seismic_cleaned = df_seismic_cleaned.withColumn("magnitude", col("magnitude").cast(DoubleType()))
-df_seismic_cleaned = df_seismic_cleaned.withColumn("tension entre plaque", col("tension entre plaque").cast(DoubleType()))
+# Drop rows with any null values in critical columns
+df_clean = df.dropna(subset=["mass", "size", "position", "velocity"])
 
-df_cities_cleaned = df_cities_cleaned.withColumn("magnitude", col("magnitude").cast(DoubleType()))
-df_cities_cleaned = df_cities_cleaned.withColumn("tension entre plaque", col("tension entre plaque").cast(DoubleType()))
+# Filtering out invalid or extreme values
+# Ensure all numeric fields have realistic bounds
 
-# Identify and remove outliers using statistical methods
-mean_magnitude = df_seismic_cleaned.select(avg(col("magnitude"))).first()[0]
-stddev_magnitude = df_seismic_cleaned.select(stddev(col("magnitude"))).first()[0]
+# Clean mass: removing invalid entries (negative or unrealistic values)
+df_clean = df_clean.filter((col("mass") > 0) & (col("mass") < 1e16))  # Example bound for mass
 
-# Filter out outliers based on a threshold, e.g., 3 standard deviations
-df_seismic_cleaned = df_seismic_cleaned.filter(
-    (col("magnitude") >= mean_magnitude - 3 * stddev_magnitude) &
-    (col("magnitude") <= mean_magnitude + 3 * stddev_magnitude)
-)
+# Clean size: removing unrealistic sizes
+size_threshold_min = 0.1  # Example minimum threshold for size
+size_threshold_max = 100.0  # Example maximum threshold for size
+df_clean = df_clean.filter((col("size") >= size_threshold_min) & (col("size") <= size_threshold_max))
 
-# Rename columns in df_cities_cleaned to avoid conflicts
-df_cities_cleaned = df_cities_cleaned.withColumnRenamed("magnitude", "city_magnitude") \
-                                     .withColumnRenamed("secousse", "city_secousse") \
-                                     .withColumnRenamed("tension entre plaque", "city_tension_entre_plaque")
+# Validate positions: ensuring values are within a realistic range
+df_clean = df_clean.filter((col("position.x").between(-1e8, 1e8)) &
+                           (col("position.y").between(-1e8, 1e8)) &
+                           (col("position.z").between(-1e8, 1e8)))
 
-# Join datasets on the date column
-df_joined = df_seismic_cleaned.join(df_cities_cleaned, on="date", how="inner")
+# Validate velocities: ensuring values are within a realistic range
+velocity_threshold = 1e3  # Example threshold for velocity
+df_clean = df_clean.filter((col("velocity.vx").between(-velocity_threshold, velocity_threshold)) &
+                           (col("velocity.vy").between(-velocity_threshold, velocity_threshold)) &
+                           (col("velocity.vz").between(-velocity_threshold, velocity_threshold)))
 
-# Save the cleaned and joined data to HDFS (as Parquet)
-df_joined.write.parquet("hdfs://namenode:9000/data/cleaned/cleaned_seismic_data", mode="overwrite")
+# Handling outliers: applying statistical methods (optional)
+# Example: capping outliers using quantile-based flooring and capping
+quantiles = df_clean.approxQuantile(["mass", "size"], [0.01, 0.99], 0.05)
+df_clean = df_clean.withColumn("mass", when(col("mass") < quantiles[0][0], quantiles[0][0]).otherwise(col("mass")))
+df_clean = df_clean.withColumn("mass", when(col("mass") > quantiles[0][1], quantiles[0][1]).otherwise(col("mass")))
+
+df_clean = df_clean.withColumn("size", when(col("size") < quantiles[1][0], quantiles[1][0]).otherwise(col("size")))
+df_clean = df_clean.withColumn("size", when(col("size") > quantiles[1][1], quantiles[1][1]).otherwise(col("size")))
+
+# Rounding off numerical columns for consistency
+df_final = df_clean.withColumn("mass", round(col("mass"), 2)) \
+                   .withColumn("size", round(col("size"), 2)) \
+                   .withColumn("position.x", round(col("position.x"), 2)) \
+                   .withColumn("position.y", round(col("position.y"), 2)) \
+                   .withColumn("position.z", round(col("position.z"), 2)) \
+                   .withColumn("velocity.vx", round(col("velocity.vx"), 2)) \
+                   .withColumn("velocity.vy", round(col("velocity.vy"), 2)) \
+                   .withColumn("velocity.vz", round(col("velocity.vz"), 2))
+
+# Selecting necessary columns
+df_final = df_final.select("id", "position", "velocity", "size", "mass")
+
+# Show the result after cleaning
+df_final.show()
+
+# Save the cleaned data back to HDFS
+df_final.write.mode("overwrite").json("hdfs://namenode:9000/data/cleaned_combined_objects.ndjson")
 
 # Stop the Spark session
 spark.stop()
