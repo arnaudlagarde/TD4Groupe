@@ -31,6 +31,7 @@ kafka_df = spark.readStream \
     .format("kafka") \
     .option("kafka.bootstrap.servers", "kafka:9092") \
     .option("subscribe", "asteroids-topic") \
+    .option("startingOffsets", "earliest") \
     .load()
 
 # Convertir et sélectionner les données JSON du message Kafka
