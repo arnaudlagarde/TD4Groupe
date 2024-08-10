@@ -124,6 +124,21 @@ services:
       - zookeeper
       - namenode
 
+  jupyter:
+    image: jupyter/scipy-notebook:latest
+    container_name: jupyter
+    restart: always
+    build: .
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./app:/home/jovyan/app
+      - ./data:/home/jovyan/shared/data
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - JUPYTER_TOKEN=123
+      - JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+
 volumes:
   hadoop_namenode:
   hadoop_datanode:
