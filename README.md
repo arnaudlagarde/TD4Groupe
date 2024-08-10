@@ -141,9 +141,9 @@ L'executer depuis le spark master :
 
 - **Graphiques** : 
 
-![Trajectoires des Astéroïdes](images/Capture%20d’écran%202024-08-10%20à%2010.46.59.png)
-![Trajectoires des Astéroïdes](images/Capture%20d’écran%202024-08-10%20à%2010.46.59.png)
-
+![Trajectoires des Astéroïdes](images/0to100.png)
+![Trajectoires des Astéroïdes](images/200to300.png)
+![Risque de collision](images/CollisionRisks.png)
 
 ## Discussion
 
