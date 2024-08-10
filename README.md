@@ -22,7 +22,7 @@
     - [Visualisations des Trajectoires](#visualisations-des-trajectoires)
   - [Discussion](#discussion)
     - [Interprétation des Résultats](#interprétation-des-résultats)
-    - [Analyse des Approches les Plus Proches](#analyse-des-approches-les-plus-proches)
+    - [Analyse des Astéroïdes les Plus Proches](#analyse-des-astéroïdes-les-plus-proches)
     - [Défis Rencontrés](#défis-rencontrés)
     - [Améliorations](#améliorations)
   - [Conclusion](#conclusion)
@@ -120,7 +120,7 @@ L'executer depuis le spark master :
 
 Les simulations ont mis en évidence des trajectoires d'astéroïdes qui se rapprochent de la Terre, soulignant l'efficacité de notre modèle pour identifier les risques potentiels. Les résultats montrent que certains astéroïdes passent près de la Terre, justifiant une surveillance continue pour anticiper des mesures de déviation. Les visualisations en trois dimensions offrent une perspective claire sur ces approches, essentielle pour les planificateurs et les chercheurs.
 
-### Analyse des Approches les Plus Proches
+### Analyse des Astéroïdes les Plus Proches
 
 Plusieurs astéroïdes s'approchent à des distances critiques, comme l'astéroïde `asteroid_fdba38c6-c025-4d62-b6d1-1503f9b5f2b4` avec une proximité de 11,561 km dans une dizaine d'année (ce sont de fausses données et nous avons fait en sorte que cela se produise). 
 
@@ -128,15 +128,15 @@ Plusieurs astéroïdes s'approchent à des distances critiques, comme l'astéro�
 ### Défis Rencontrés
 
 - **Problèmes** : 
-    Collisions Astéroïdes-Terre: Un des défis majeurs a été de ne pas détecter suffisamment de risques de collision avec la Terre. Les valeurs initiales des positions et vitesses des astéroïdes étaient trop élevées, ce qui compliquait l’identification des trajectoires à risque. Pour pallier cela, nous avons ajusté les simulations pour générer des astéroïdes se dirigeant directement vers la Terre. Bien que cette approche soit moins réaliste, elle a permis d’améliorer les visualisations et les modèles prédictifs en créant des cas de test concrets pour mieux évaluer les risques potentiels.
+    ``Collisions Astéroïdes-Terre``: Un des défis majeurs a été de ne pas détecter suffisamment de risques de collision avec la Terre. Les valeurs initiales des positions et vitesses des astéroïdes étaient trop élevées, ce qui compliquait l’identification des trajectoires à risque. Pour pallier cela, nous avons ajusté les simulations pour générer des astéroïdes se dirigeant directement vers la Terre. Bien que cette approche soit moins réaliste, elle a permis d’améliorer les visualisations et les modèles prédictifs en créant des cas de test concrets pour mieux évaluer les risques potentiels.
 
-    Problèmes de Docker: L’utilisation de Docker a posé des problèmes de compatibilité et de configuration, nécessitant des ajustements fréquents des fichiers Dockerfile et des paramètres de conteneur pour garantir un environnement stable.
+    ``Problèmes de Docker``: L’utilisation de Docker a posé des problèmes de compatibilité et de configuration, nécessitant des ajustements fréquents des fichiers Dockerfile et des paramètres de conteneur pour garantir un environnement stable.
 
-    Versions de Python pour Spark: Des problèmes de compatibilité ont été rencontrés avec Spark, notamment en raison de l’utilisation de différentes versions de Python. Il a fallu synchroniser les versions de Python sur tous les environnements pour assurer le bon fonctionnement des bibliothèques Spark.
+    ``Versions de Python pour Spark``: Des problèmes de compatibilité ont été rencontrés avec Spark, notamment en raison de l’utilisation de différentes versions de Python. Il a fallu synchroniser les versions de Python sur tous les environnements pour assurer le bon fonctionnement des bibliothèques Spark.
 
-    Configuration du PATH Java: La configuration incorrecte du PATH Java a occasionné plusieurs erreurs lors de l’exécution de Spark, nécessitant un ajustement manuel des variables d’environnement pour pointer vers la version correcte de Java.
+    ``Configuration du PATH Java``: La configuration incorrecte du PATH Java a occasionné plusieurs erreurs lors de l’exécution de Spark, nécessitant un ajustement manuel des variables d’environnement pour pointer vers la version correcte de Java.
 
-    Travail collaboratif : Difficile de se répartir les tâches en sachant que le travail de l'un est nécessaire pour l'autre qui ne peut rien faire pendant ce temps là.
+    ``Travail collaboratif`` : Difficile de se répartir les tâches en sachant que le travail de l'un est nécessaire pour l'autre qui ne peut rien faire pendant ce temps là.
 
 ### Améliorations
 
