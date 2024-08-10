@@ -14,6 +14,8 @@
     - [Spark](#spark)
   - [Génération de Données](#génération-de-données)
     - [Script de Génération des Données](#script-de-génération-des-données)
+  - [Scripts Spark](#scripts-spark)
+    - [Script de Nettoyage des données](#script-de-nettoyage-des-données)
   - [Stockage et Traitement des Données](#stockage-et-traitement-des-données)
     - [Stockage dans Hadoop (HDFS)](#stockage-dans-hadoop-hdfs)
     - [Traitement avec Spark](#traitement-avec-spark)
@@ -89,6 +91,18 @@ python generate_data.py
 ```
 
 
+
+## Scripts Spark
+
+### Script de Nettoyage des données 
+```bash
+docker exec -it spark-master /bin/bash
+```
+L'executer depuis le spark master : 
+```bash
+/spark/bin/spark-submit /app/data_cleaning.py
+```
+
 ## Stockage et Traitement des Données
 
 ### Stockage dans Hadoop (HDFS)
@@ -97,27 +111,27 @@ python generate_data.py
 
 ### Traitement avec Spark
 
-- **Lecture des Données** : Utilisez Spark pour lire les données stockées dans HDFS.
-- **Nettoyage des Données** : Effectuez des opérations de nettoyage et de préparation des données.
-- **Analyse des Trajectoires** : Calculez les trajectoires prévues des astéroïdes.
+- **Lecture des Données** 
+- **Nettoyage des Données**
+- **Analyse des Trajectoires** 
 
 ## Modélisation Prédictive
 
 ### Sélection des Algorithmes
 
-- **Algorithmes Choisis** : Décrivez les algorithmes que vous avez sélectionnés pour la prédiction. Cela peut inclure des algorithmes de régression logistique, des réseaux de neurones, des machines à vecteurs de support, ou d'autres méthodes de machine learning ou deep learning. Expliquez pourquoi ces algorithmes sont appropriés pour la tâche de prédiction de collision des astéroïdes.
+- **Algorithmes Choisis** : Nous avons opté pour la régression logistique en raison de sa simplicité et de son efficacité pour les tâches de classification binaire, telles que la prédiction des collisions d’astéroïdes. La régression logistique est bien adaptée pour modéliser la probabilité d’occurrence d’un événement en fonction des variables d’entrée, ce qui convient parfaitement à notre problème de prédiction de collision.
 
 ### Entraînement du Modèle
 
-- **Entraînement** : Décrivez le processus d'entraînement du modèle. Cela inclut la préparation des données, le choix des hyperparamètres, et la durée de l'entraînement. Mentionnez les outils et bibliothèques utilisés (comme Scikit-learn, TensorFlow, PyTorch, etc.).
+- **Entraînement** : Les données ont été préparées et nettoyées avant d’être utilisées pour entraîner le modèle. Un pipeline Spark a été créé pour assembler les caractéristiques des astéroïdes en vecteurs de caractéristiques, suivi par un modèle de régression logistique. Nous avons utilisé une séparation de données en ensembles d’entraînement (80%) et de test (20%) pour entraîner le modèle. Le modèle a été entraîné en utilisant PySpark pour tirer parti du traitement distribué.
 
-- **Validation** : Présentez les techniques de validation utilisées pour évaluer la performance du modèle. Cela peut inclure la validation croisée, les ensembles de données de validation, et les métriques d'évaluation comme la précision, le rappel, la F-mesure, ou l'AUC-ROC. Discutez des résultats obtenus et de la performance du modèle sur les données de test.
+- **Validation** : La performance du modèle a été évaluée en utilisant l’AUC-ROC comme métrique principale. Un CrossValidator avec une grille de paramètres a été utilisé pour optimiser les hyperparamètres. Les prédictions finales ont été sauvegardées dans HDFS pour une analyse plus approfondie.
 
 ## Visualisation
 
 ### Visualisations des Trajectoires
 
-- **Graphiques** : ![Trajectoires des Astéroïdes](images/Capture%20d’écran%202024-08-09%20à%2022.51.17.pngscreenshot1.png)
+- **Graphiques** : ![Trajectoires des Astéroïdes](images/Capture%20d’écran%202024-08-10%20à%2010.46.59.png)
 ![Trajectoires des Astéroïdes](images/Capture%20d’écran%202024-08-10%20à%2010.46.59.png)
 
 
@@ -141,7 +155,19 @@ python generate_data.py
 
 ### Améliorations
 
-- **Suggestions** : Proposez des améliorations possibles pour les futures itérations du projet.
+- **Amélioration de la Génération de Données** : Enrichir la simulation de données d'astéroïdes avec des modèles physiques plus avancés pour mieux refléter la diversité et les comportements des astéroïdes réels. Cela pourrait inclure des paramètres comme l'effet de la gravité de la Terre sur les trajectoires.
+
+- **Intégration de Données Réelles** : Incorporer des données astronomiques réelles provenant de sources fiables telles que la NASA pour valider et améliorer la précision des modèles de prédiction. Cela aiderait à aligner les simulations avec des scénarios du monde réel.
+
+- **Optimisation des Modèles** : Explorer d'autres algorithmes de machine learning ou de deep learning, tels que les forêts aléatoires ou les réseaux de neurones convolutifs, pour améliorer les performances des prédictions. Utiliser des techniques de fine-tuning pour optimiser davantage les modèles existants.
+
+- **Scalabilité et Performance** : Améliorer la scalabilité du pipeline de données en optimisant l'utilisation de Spark et en explorant des solutions de calcul distribué supplémentaires comme Apache Flink. Cela pourrait permettre de traiter un volume de données plus important plus efficacement.
+
+- **Automatisation des Pipelines** : Mettre en place des pipelines de traitement et d'analyse de données automatisés utilisant des technologies comme Airflow ou Kubeflow. Cela faciliterait l'intégration continue et le déploiement des modèles en production.
+
+- **Visualisations Améliorées** : Développer des visualisations interactives plus avancées, permettant aux utilisateurs d'explorer dynamiquement les trajectoires et les prédictions de collision des astéroïdes. L'utilisation de technologies comme WebGL pourrait enrichir l'expérience utilisateur.
+
+- **Amélioration de l'Interface Utilisateur** : Créer une interface utilisateur conviviale pour visualiser les données et interagir avec les modèles prédictifs, facilitant l'utilisation pour les parties prenantes non techniques.
 
 ---
 
