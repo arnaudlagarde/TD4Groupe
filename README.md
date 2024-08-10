@@ -8,10 +8,6 @@
     - [Contexte](#contexte)
     - [Objectifs](#objectifs)
     - [Technologies Utilisées](#technologies-utilisées)
-  - [Configuration de l’Environnement](#configuration-de-lenvironnement)
-    - [Kafka](#kafka)
-    - [Hadoop (HDFS)](#hadoop-hdfs)
-    - [Spark](#spark)
   - [Génération de Données](#génération-de-données)
     - [Script de Génération des Données](#script-de-génération-des-données)
   - [Scripts Spark](#scripts-spark)
@@ -26,10 +22,10 @@
     - [Visualisations des Trajectoires](#visualisations-des-trajectoires)
   - [Discussion](#discussion)
     - [Interprétation des Résultats](#interprétation-des-résultats)
+    - [Analyse des Approches les Plus Proches](#analyse-des-approches-les-plus-proches)
     - [Défis Rencontrés](#défis-rencontrés)
     - [Améliorations](#améliorations)
   - [Conclusion](#conclusion)
-    - [Résumé](#résumé)
     - [Perspectives Futures](#perspectives-futures)
   - [Annexes](#annexes)
     - [Code Source](#code-source)
@@ -42,7 +38,7 @@
 
 ### Contexte
 
-Ce projet a pour objectif de prédire la probabilité de collision des astéroïdes avec la Terre en utilisant des données simulées et des algorithmes de Machine Learning. Les données des astéroïdes sont générées et publiées sur Kafka, stockées dans HDFS, puis traitées et analysées à l’aide de Spark.
+Ce projet a pour objectif de prédire la probabilité de collision des astéroïdes avec la Terre en utilisant des données simulées et des algorithmes de Machine Learning. Les données des astéroïdes sont générées et publiées sur Kafka, stockées dans HDFS, puis traitées et analysées à l’aide de Spark et visualiser avec Matplotlib.
 
 ### Objectifs
 
@@ -59,25 +55,6 @@ Ce projet a pour objectif de prédire la probabilité de collision des astéroï
 - **Python** : Pour la génération des données et le développement des modèles.
 - **Scikit-learn, TensorFlow, PyTorch** : Pour la modélisation prédictive.
 - **Matplotlib, Seaborn, Plotly** : Pour la visualisation des résultats.
-
----
-
-## Configuration de l’Environnement
-
-### Kafka
-
-- **Installation** : Suivre la documentation officielle pour installer Kafka sur votre machine ou cluster.
-- **Configuration** : Créez un topic pour les données des astéroïdes.
-
-### Hadoop (HDFS)
-
-- **Installation** : Installez Hadoop en suivant la documentation officielle.
-- **Configuration** : Configurez HDFS pour le stockage des données.
-
-### Spark
-
-- **Installation** : Installez Apache Spark à partir de la documentation officielle.
-- **Configuration** : Assurez-vous que Spark est correctement configuré pour accéder à HDFS et traiter les données.
 
 ---
 
@@ -119,7 +96,7 @@ L'executer depuis le spark master :
 
 ### Sélection des Algorithmes
 
-- **Algorithmes Choisis** : Nous avons opté pour la régression logistique en raison de sa simplicité et de son efficacité pour les tâches de classification binaire, telles que la prédiction des collisions d’astéroïdes. La régression logistique est bien adaptée pour modéliser la probabilité d’occurrence d’un événement en fonction des variables d’entrée, ce qui convient parfaitement à notre problème de prédiction de collision.
+- **Algorithmes Choisis** : Nous avons opté pour la régression logistique en raison de sa simplicité et de son efficacité pour les tâches de classification binaire, telles que la prédiction des collisions d’astéroïdes. Cela convient parfaitement à notre problème de prédiction de collision.
 
 ### Entraînement du Modèle
 
@@ -131,16 +108,22 @@ L'executer depuis le spark master :
 
 ### Visualisations des Trajectoires
 
-- **Graphiques** : ![Trajectoires des Astéroïdes](images/Capture%20d’écran%202024-08-10%20à%2010.46.59.png)
-![Trajectoires des Astéroïdes](images/Capture%20d’écran%202024-08-10%20à%2010.46.59.png)
+- **Graphiques** : 
 
+![Trajectoires des Astéroïdes](images/Capture%20d’écran%202024-08-10%20à%2010.46.59.png)
+![Trajectoires des Astéroïdes](images/Capture%20d’écran%202024-08-10%20à%2010.46.59.png)
 
 
 ## Discussion
 
 ### Interprétation des Résultats
 
-- **Analyse** : Discutez des résultats obtenus à partir des modèles et des visualisations.
+Les simulations ont mis en évidence des trajectoires d'astéroïdes qui se rapprochent de la Terre, soulignant l'efficacité de notre modèle pour identifier les risques potentiels. Les résultats montrent que certains astéroïdes passent près de la Terre, justifiant une surveillance continue pour anticiper des mesures de déviation. Les visualisations en trois dimensions offrent une perspective claire sur ces approches, essentielle pour les planificateurs et les chercheurs.
+
+### Analyse des Approches les Plus Proches
+
+Plusieurs astéroïdes s'approchent à des distances critiques, comme l'astéroïde `asteroid_fdba38c6-c025-4d62-b6d1-1503f9b5f2b4` avec une proximité de 11,561 km dans une dizaine d'année (ce sont de fausses données et nous avons fait en sorte que cela se produise). 
+
 
 ### Défis Rencontrés
 
@@ -153,29 +136,25 @@ L'executer depuis le spark master :
 
     Configuration du PATH Java: La configuration incorrecte du PATH Java a occasionné plusieurs erreurs lors de l’exécution de Spark, nécessitant un ajustement manuel des variables d’environnement pour pointer vers la version correcte de Java.
 
+    Travail collaboratif : Difficile de se répartir les tâches en sachant que le travail de l'un est nécessaire pour l'autre qui ne peut rien faire pendant ce temps là.
+
 ### Améliorations
 
-- **Amélioration de la Génération de Données** : Enrichir la simulation de données d'astéroïdes avec des modèles physiques plus avancés pour mieux refléter la diversité et les comportements des astéroïdes réels. Cela pourrait inclure des paramètres comme l'effet de la gravité de la Terre sur les trajectoires.
+- **Amélioration de la Génération de Données** : Enrichir la simulation de données d'astéroïdes avec des modèles physiques plus avancés pour mieux refléter la diversité et les comportements des astéroïdes réels. Effet de la gravité de la Terre sur les trajectoires etc...
 
-- **Intégration de Données Réelles** : Incorporer des données astronomiques réelles provenant de sources fiables telles que la NASA pour valider et améliorer la précision des modèles de prédiction. Cela aiderait à aligner les simulations avec des scénarios du monde réel.
+- **Intégration de Données Réelles** : Incorporer des données astronomiques réelles provenant de sources fiables telles que la NASA pour valider et améliorer la précision des modèles de prédiction. Cela aiderait à aligner les simulations avec des scénarios du monde réel. - La génération d'astéroïdes a été faite un peu vite ce qui nous a causé de nombreux problèmes lors de la Visualisation et la réalisation des modèles de ML.
 
-- **Optimisation des Modèles** : Explorer d'autres algorithmes de machine learning ou de deep learning, tels que les forêts aléatoires ou les réseaux de neurones convolutifs, pour améliorer les performances des prédictions. Utiliser des techniques de fine-tuning pour optimiser davantage les modèles existants.
+- **Optimisation des Modèles** : Explorer d'autres algorithmes de machine learning ou de deep learning, tels que les random forest ou les RNN, pour améliorer les performances des prédictions. 
 
-- **Scalabilité et Performance** : Améliorer la scalabilité du pipeline de données en optimisant l'utilisation de Spark et en explorant des solutions de calcul distribué supplémentaires comme Apache Flink. Cela pourrait permettre de traiter un volume de données plus important plus efficacement.
+- **Scalabilité et Performance** : Améliorer la scalabilité du pipeline de données en optimisant l'utilisation de Spark et en explorant des solutions de calcul distribué supplémentaires comme Apache Flink. 
 
-- **Automatisation des Pipelines** : Mettre en place des pipelines de traitement et d'analyse de données automatisés utilisant des technologies comme Airflow ou Kubeflow. Cela faciliterait l'intégration continue et le déploiement des modèles en production.
+- **Automatisation des Pipelines** : Mettre en place des pipelines de traitement et d'analyse de données automatisés utilisant des technologies comme Airflow ou Kubeflow. en production.
 
 - **Visualisations Améliorées** : Développer des visualisations interactives plus avancées, permettant aux utilisateurs d'explorer dynamiquement les trajectoires et les prédictions de collision des astéroïdes. L'utilisation de technologies comme WebGL pourrait enrichir l'expérience utilisateur.
-
-- **Amélioration de l'Interface Utilisateur** : Créer une interface utilisateur conviviale pour visualiser les données et interagir avec les modèles prédictifs, facilitant l'utilisation pour les parties prenantes non techniques.
 
 ---
 
 ## Conclusion
-
-### Résumé
-
-- **Contributions** : Résumez les principales contributions du projet.
 
 ### Perspectives Futures
 
@@ -191,11 +170,76 @@ L'executer depuis le spark master :
 
 ### Code Source
 
-- **Scripts** : Incluez des liens ou des extraits de code source utilisé dans le projet.
+![Utilisation de volumes](images/SparkMasterVolumes.png)
+![Génération des asteroïdes](images/CodeGenerationAsteroides.png)
 
 ### Données
 
-- **Exemples** : Fournissez des exemples de données utilisées pour les tests et l’entraînement.
+- **Exemples** : Voici des exemples de données utilisées pour les tests et l’entraînement, représentant des astéroïdes avec leurs positions, vitesses, tailles, et masses :
+
+```json
+[
+  {
+    "id": "asteroid_000",
+    "position": {
+      "x": 222699.68154550303,
+      "y": -170502.49676500133,
+      "z": 96286.63452916636
+    },
+    "velocity": {
+      "vx": -44.97868922069429,
+      "vy": -43.36883583999207,
+      "vz": -25.59081952536193
+    },
+    "size": 7.4,
+    "mass": 326766029087404.1
+  },
+  {
+    "id": "asteroid_001",
+    "position": {
+      "x": 241510.24486868948,
+      "y": -168452.54814790297,
+      "z": -69360.43184168254
+    },
+    "velocity": {
+      "vx": 26.831251068521794,
+      "vy": -1.8149620055246487,
+      "vz": -46.032363223946696
+    },
+    "size": 9.44,
+    "mass": 870778504940109.8
+  },
+  {
+    "id": "asteroid_002",
+    "position": {
+      "x": 388430.33475928206,
+      "y": 103642.09747688752,
+      "z": 77811.35800764093
+    },
+    "velocity": {
+      "vx": 25.627763490355875,
+      "vy": -10.60880719214665,
+      "vz": -17.034735038669922
+    },
+    "size": 6.05,
+    "mass": 594347471261444.2
+  },
+  {
+    "id": "asteroid_003",
+    "position": {
+      "x": 408252.9731877086,
+      "y": 171151.49242054566,
+      "z": 34378.74584184485
+    },
+    "velocity": {
+      "vx": 18.25062679578167,
+      "vy": -18.976092532415546,
+      "vz": -30.3861330406611
+    },
+    "size": 2.74,
+    "mass": 350618904146509.5
+  }
+]
 
 ## Équipe
 
