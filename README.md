@@ -8,6 +8,10 @@
     - [Contexte](#contexte)
     - [Objectifs](#objectifs)
     - [Technologies Utilisées](#technologies-utilisées)
+  - [Architecture Docker](#architecture-docker)
+    - [Docker Compose](#docker-compose)
+    - [Avantages de l'utilisation de Docker](#avantages-de-lutilisation-de-docker)
+    - [Exécution avec Docker Compose](#exécution-avec-docker-compose)
   - [Génération de Données](#génération-de-données)
     - [Script de Génération des Données](#script-de-génération-des-données)
   - [Scripts Spark](#scripts-spark)
@@ -55,9 +59,36 @@ Ce projet a pour objectif de prédire la probabilité de collision des astéroï
 - **Python** : Pour la génération des données et le développement des modèles.
 - **Scikit-learn, TensorFlow, PyTorch** : Pour la modélisation prédictive.
 - **Matplotlib, Seaborn, Plotly** : Pour la visualisation des résultats.
+- **Docker**: Conteneurisation des technos
 
 ---
+## Architecture Docker
 
+Nous avons utilisé Docker pour simplifier la configuration et la gestion de notre environnement de développement et de production. Docker permet de déployer facilement les applications sur n'importe quel système tout en assurant la cohérence entre les environnements.
+
+### Docker Compose
+
+Pour orchestrer nos services, notamment Kafka, Hadoop, et Spark, nous avons utilisé Docker Compose. Cela nous a permis de définir et de gérer l'ensemble de notre infrastructure de services de manière déclarative et dans un fichier unique.
+
+- **Fichier `docker-compose.yml`** : [Voir le fichier ici](docker-compose.yml)
+
+### Avantages de l'utilisation de Docker
+
+- **Uniformité** : Docker assure que notre application s'exécute de la même manière, indépendamment de l'environnement local, de développement ou de production.
+- **Isolation** : Chaque service s'exécute dans son propre conteneur, ce qui minimise les conflits entre les dépendances.
+- **Reproductibilité** : Facilite la mise en place rapide de nouveaux environnements de développement et de test.
+
+Cette architecture nous a aidés à surmonter les défis liés à la configuration des différents outils et à la gestion des dépendances, réduisant ainsi les erreurs de configuration et les incompatibilités entre les environnements.
+
+### Exécution avec Docker Compose
+
+Pour démarrer l'ensemble des services définis dans le fichier `docker-compose.yml`, utilisez la commande suivante :
+
+```bash
+docker-compose up -d
+```
+
+---
 ## Génération de Données
 
 ### Script de Génération des Données
