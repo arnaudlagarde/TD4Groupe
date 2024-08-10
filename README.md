@@ -97,9 +97,9 @@ L'executer depuis le spark master :
   Cela est fait automatiquement au lancement du docker a travers deux Dockerfile pour les conteneurs responsable du producer et du consumer de Kafka
 
   **Execution Kafka producer/consumer**
-    [Producer](kafka-producer.png)
-    [Consumer](kafka-consumer.png)
-
+    ![Producer](images/kafka-producer.png)
+    ![Consumer](images/kafka-consumer.png)
+    
   ### Traitement avec Spark
 
   - **Lecture des Données** 
