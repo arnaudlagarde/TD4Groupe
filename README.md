@@ -1,43 +1,5 @@
 # Projet Asteroid Prediction
 
-## Table des Matières
-
-- [Projet Asteroid Prediction](#projet-asteroid-prediction)
-  - [Table des Matières](#table-des-matières)
-  - [Introduction](#introduction)
-    - [Contexte](#contexte)
-    - [Objectifs](#objectifs)
-    - [Technologies Utilisées](#technologies-utilisées)
-  - [Architecture Docker](#architecture-docker)
-    - [Docker Compose](#docker-compose)
-    - [Avantages de l'utilisation de Docker](#avantages-de-lutilisation-de-docker)
-    - [Exécution avec Docker Compose](#exécution-avec-docker-compose)
-  - [Génération de Données](#génération-de-données)
-    - [Script de Génération des Données](#script-de-génération-des-données)
-  - [Scripts Spark](#scripts-spark)
-    - [Script de Nettoyage des données](#script-de-nettoyage-des-données)
-  - [Stockage et Traitement des Données](#stockage-et-traitement-des-données)
-    - [Stockage dans Hadoop (HDFS)](#stockage-dans-hadoop-hdfs)
-    - [Traitement avec Spark](#traitement-avec-spark)
-  - [Modélisation Prédictive](#modélisation-prédictive)
-    - [Sélection des Algorithmes](#sélection-des-algorithmes)
-    - [Entraînement du Modèle](#entraînement-du-modèle)
-  - [Visualisation](#visualisation)
-    - [Visualisations des Trajectoires](#visualisations-des-trajectoires)
-  - [Discussion](#discussion)
-    - [Interprétation des Résultats](#interprétation-des-résultats)
-    - [Analyse des Astéroïdes les Plus Proches](#analyse-des-astéroïdes-les-plus-proches)
-    - [Défis Rencontrés](#défis-rencontrés)
-    - [Améliorations](#améliorations)
-  - [Conclusion](#conclusion)
-    - [Perspectives Futures](#perspectives-futures)
-  - [Annexes](#annexes)
-    - [Code Source](#code-source)
-    - [Données](#données)
-  - [Équipe](#équipe)
-
----
-
 ## Introduction
 
 ### Contexte
@@ -57,11 +19,14 @@ Ce projet a pour objectif de prédire la probabilité de collision des astéroï
 - **Hadoop (HDFS)** : Pour le stockage des données.
 - **Spark** : Pour le traitement des données.
 - **Python** : Pour la génération des données et le développement des modèles.
-- **Scikit-learn, TensorFlow, PyTorch** : Pour la modélisation prédictive.
+- **Scikit-learn** : Pour la modélisation prédictive.
 - **Matplotlib, Seaborn, Plotly** : Pour la visualisation des résultats.
-- **Docker**: Conteneurisation des technos
+- **Docker**: Conteneurisation des technos.
 
 ---
+## Git
+Pour récupérer le code sur git : ```bash git clone https://github.com/arnaudlagarde/TD4Groupe.git```
+
 ## Architecture Docker
 
 Nous avons utilisé Docker pour simplifier la configuration et la gestion de notre environnement de développement et de production. Docker permet de déployer facilement les applications sur n'importe quel système tout en assurant la cohérence entre les environnements.
@@ -115,25 +80,61 @@ L'executer depuis le spark master :
 
 ### Stockage dans Hadoop (HDFS)
 
-- **Consommateur Kafka** : Configurez un consommateur Kafka pour lire les données des astéroïdes et les stocker dans HDFS.
+  - **Producteur Kafka** : Les données des astéroïdes sont générées par un producteur Kafka, qui simule ou collecte des informations sur les astéroïdes, telles que leur position, vitesse, taille et masse. Ces données sont ensuite sérialisées en JSON et envoyées à un topic Kafka nommé `asteroids-topic`.
 
-### Traitement avec Spark
+  - **Consommateur Kafka avec Spark** : Un consommateur Kafka, implémenté avec Apache Spark, est configuré pour lire en continu les messages du topic `asteroids-topic`. Spark lit les données en streaming depuis Kafka, les désérialise et les traite en temps réel.
 
-- **Lecture des Données** 
-- **Nettoyage des Données**
-- **Analyse des Trajectoires** 
+  - **Traitement des Données** : Après ingestion, les données sont converties dans une structure tabulaire à l'aide de Spark. Cette étape permet de valider, nettoyer, et structurer les données pour qu'elles soient prêtes à être stockées.
+
+  - **Stockage dans HDFS** : Les données traitées sont ensuite stockées dans Hadoop Distributed File System (HDFS). Chaque enregistrement d'astéroïde est sauvegardé en format JSON dans un répertoire spécifique sur HDFS. Le chemin de stockage est généralement configuré pour utiliser un nom de répertoire comme `/data/asteroids`, ce qui permet de centraliser toutes les données des astéroïdes.
+
+  - **Tolérance aux Erreurs et Reprise** : Grâce à l'utilisation de Kafka et Spark, le système est conçu pour être tolérant aux erreurs. Si une panne survient, Kafka assure que les messages ne sont pas perdus, tandis que Spark utilise un système de checkpoint pour redémarrer la lecture à partir de l'endroit où elle s'était arrêtée.
+
+  - **Checkpointing et Consistance des Données** : Pour garantir la consistance des données et la tolérance aux pannes, Spark utilise des checkpoints, enregistrant régulièrement son état dans HDFS. Cela permet de reprendre le traitement là où il s'était arrêté en cas de défaillance du système.
+
+  Ce flux de traitement assure que les données des astéroïdes sont ingérées en temps réel, traitées efficacement, et stockées de manière fiable dans HDFS, prêtes à être utilisées pour des analyses ultérieures ou des modèles prédictifs. 
+
+  Cela est fait automatiquement au lancement du docker a travers deux Dockerfile pour les conteneurs responsable du producer et du consumer de Kafka
+
+  **Execution Kafka producer/consumer**
+    [Producer](kafka-producer.png)
+    [Consumer](kafka-consumer.png)
+
+  ### Traitement avec Spark
+
+  - **Lecture des Données** 
+      Les datas sont récupérés après l'ingestion depuis le dossier `/data/asteroids` sur HDFS
+  - **Nettoyage des Données**
+      [Script de nettoyage et de mise en forme](app/data_cleaning.py): 
+      - Chargement : Les données des astéroïdes sont chargées depuis HDFS.
+      - Nettoyage : Suppression des valeurs nulles et des enregistrements avec des valeurs aberrantes (masse, taille, position, vitesse).
+      - Calcul de Distance : Ajout d'une colonne distance_to_earth pour calculer la distance entre chaque astéroïde et la Terre.
+      - Variable de Collision : Création d'une colonne collision pour indiquer les risques de collision, basée sur la distance.
+      - Sauvegarde : Les données nettoyées et préparées sont sauvegardées dans HDFS pour l'analyse prédictive.
+  - **Analyse des Trajectoires**
+      Les scripts d'analyse des trajectoires modélisent les mouvements des astéroïdes en utilisant leurs positions et vitesses. Ils calculent les trajectoires pour prédire les déplacements futurs, détectent les astéroïdes qui s'approchent de la Terre, et visualisent ces trajectoires pour une interprétation facile des risques de collision.
+
 
 ## Modélisation Prédictive
 
 ### Sélection des Algorithmes
 
-- **Algorithmes Choisis** : Nous avons opté pour la régression logistique en raison de sa simplicité et de son efficacité pour les tâches de classification binaire, telles que la prédiction des collisions d’astéroïdes. Cela convient parfaitement à notre problème de prédiction de collision.
+- **Algorithmes Choisis** : Nous avons opté pour la régression logistique en raison de sa simplicité et de son efficacité pour les tâches de classification binaire, telles que la prédiction des collisions d'astéroïdes. Cet algorithme est bien adapté à notre problème de prédiction de collisions.
 
 ### Entraînement du Modèle
 
-- **Entraînement** : Les données ont été préparées et nettoyées avant d’être utilisées pour entraîner le modèle. Un pipeline Spark a été créé pour assembler les caractéristiques des astéroïdes en vecteurs de caractéristiques, suivi par un modèle de régression logistique. Nous avons utilisé une séparation de données en ensembles d’entraînement (80%) et de test (20%) pour entraîner le modèle. Le modèle a été entraîné en utilisant PySpark pour tirer parti du traitement distribué.
+- **Entraînement** : Les données ont été préparées et nettoyées avant d'être utilisées pour l'entraînement du modèle. Un pipeline Spark a été créé pour assembler les caractéristiques des astéroïdes en vecteurs de caractéristiques, suivi d'un modèle de régression logistique. Les données ont été divisées en ensembles d'entraînement (80%) et de test (20%) pour entraîner le modèle. Le modèle a été entraîné en utilisant PySpark pour tirer parti du traitement distribué. ([Script :](app/model_training.py))
 
-- **Validation** : La performance du modèle a été évaluée en utilisant l’AUC-ROC comme métrique principale. Un CrossValidator avec une grille de paramètres a été utilisé pour optimiser les hyperparamètres. Les prédictions finales ont été sauvegardées dans HDFS pour une analyse plus approfondie.
+- **Validation** : La performance du modèle a été évaluée en utilisant l'AUC-ROC comme métrique principale. Un `CrossValidator` avec une grille de paramètres a été utilisé pour optimiser les hyperparamètres. Les prédictions finales ont été sauvegardées dans HDFS pour une analyse plus approfondie. ([Script :](app/batch_prediction.py))
+
+### Fichiers en charge de chaque étape
+
+1. **`model_training.py`** : Ce script est responsable de l'entraînement du modèle. Il prend les données nettoyées, les transforme en vecteurs de caractéristiques, entraîne un modèle de régression logistique, et optimise les hyperparamètres à l'aide d'une validation croisée. Le modèle entraîné est ensuite sauvegardé dans HDFS.
+
+2. **`batch_prediction.py`** : Ce script utilise le modèle entraîné pour effectuer des prédictions en batch sur de nouvelles données d'astéroïdes. Les résultats de la prédiction, y compris la probabilité de collision, sont sauvegardés dans HDFS pour une analyse ultérieure.
+
+Ces scripts forment un pipeline de modélisation prédictive complet, allant de l'entraînement du modèle à l'application des prédictions sur des données nouvelles. Ils utilisent Apache Spark pour un traitement rapide et efficace des grandes quantités de données d'astéroïdes.
+
 
 ## Visualisation
 
@@ -177,7 +178,7 @@ Plusieurs astéroïdes s'approchent à des distances critiques, comme l'astéro�
 
 - **Optimisation des Modèles** : Explorer d'autres algorithmes de machine learning ou de deep learning, tels que les random forest ou les RNN, pour améliorer les performances des prédictions. 
 
-- **Scalabilité et Performance** : Améliorer la scalabilité du pipeline de données en optimisant l'utilisation de Spark et en explorant des solutions de calcul distribué supplémentaires comme Apache Flink. 
+- **Scalabilité et Performance** : Améliorer la scalabilité du pipeline de données en optimisant l'utilisation de Spark et en explorant des solutions de calcul distribué supplémentaires comme Apache Flink.
 
 - **Automatisation des Pipelines** : Mettre en place des pipelines de traitement et d'analyse de données automatisés utilisant des technologies comme Airflow ou Kubeflow. en production.
 
