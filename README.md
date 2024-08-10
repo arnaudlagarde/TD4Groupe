@@ -32,7 +32,6 @@
   - [Annexes](#annexes)
     - [Code Source](#code-source)
     - [Données](#données)
-  - [Références](#références)
   - [Équipe](#équipe)
 
 ---
@@ -118,7 +117,10 @@ python generate_data.py
 
 ### Visualisations des Trajectoires
 
-- **Graphiques** : Incluez des graphiques montrant les trajectoires des astéroïdes et les résultats des prédictions. Utilisez des bibliothèques telles que Matplotlib, Seaborn ou Plotly pour créer des visualisations claires et informatives. Ces graphiques peuvent inclure des courbes représentant les trajectoires des astéroïdes dans l'espace, des histogrammes de la taille et de la masse des astéroïdes, ainsi que des graphiques de la probabilité de collision.
+- **Graphiques** : ![Trajectoires des Astéroïdes](images/Capture%20d’écran%202024-08-09%20à%2022.51.17.pngscreenshot1.png)
+![Trajectoires des Astéroïdes](images/Capture%20d’écran%202024-08-10%20à%2010.46.59.png)
+
+
 
 ## Discussion
 
@@ -128,7 +130,14 @@ python generate_data.py
 
 ### Défis Rencontrés
 
-- **Problèmes** : Notez les défis rencontrés durant le projet et comment ils ont été résolus.
+- **Problèmes** : 
+    Collisions Astéroïdes-Terre: Un des défis majeurs a été de ne pas détecter suffisamment de risques de collision avec la Terre. Les valeurs initiales des positions et vitesses des astéroïdes étaient trop élevées, ce qui compliquait l’identification des trajectoires à risque. Pour pallier cela, nous avons ajusté les simulations pour générer des astéroïdes se dirigeant directement vers la Terre. Bien que cette approche soit moins réaliste, elle a permis d’améliorer les visualisations et les modèles prédictifs en créant des cas de test concrets pour mieux évaluer les risques potentiels.
+
+    Problèmes de Docker: L’utilisation de Docker a posé des problèmes de compatibilité et de configuration, nécessitant des ajustements fréquents des fichiers Dockerfile et des paramètres de conteneur pour garantir un environnement stable.
+
+    Versions de Python pour Spark: Des problèmes de compatibilité ont été rencontrés avec Spark, notamment en raison de l’utilisation de différentes versions de Python. Il a fallu synchroniser les versions de Python sur tous les environnements pour assurer le bon fonctionnement des bibliothèques Spark.
+
+    Configuration du PATH Java: La configuration incorrecte du PATH Java a occasionné plusieurs erreurs lors de l’exécution de Spark, nécessitant un ajustement manuel des variables d’environnement pour pointer vers la version correcte de Java.
 
 ### Améliorations
 
@@ -144,7 +153,11 @@ python generate_data.py
 
 ### Perspectives Futures
 
-- **Travail Futur** : Discutez des directions possibles pour le travail futur et des améliorations possibles.
+- **Travail Futur** : 
+	•	Amélioration des Modèles : Explorer des modèles avancés, comme les réseaux de neurones profonds, pour améliorer les prédictions de collision.
+	•	Intégration de Données Réelles : Utiliser des données astronomiques réelles pour affiner les simulations et accroître le réalisme des résultats.
+	•	Optimisation des Performances : Optimiser le traitement des données avec Spark et envisager d’autres solutions comme Apache Flink pour améliorer l’efficacité.
+	•	Visualisations Interactives : Améliorer les visualisations interactives pour permettre une exploration plus intuitive des trajectoires et des risques.
 
 ---
 
@@ -157,14 +170,6 @@ python generate_data.py
 ### Données
 
 - **Exemples** : Fournissez des exemples de données utilisées pour les tests et l’entraînement.
-
----
-
-## Références
-
-- **Documentation** : Incluez des liens vers la documentation officielle, des articles de recherche, ou d’autres ressources pertinentes.
-
----
 
 ## Équipe
 
